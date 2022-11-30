@@ -5,6 +5,9 @@ const partials = require('express-partials');
 const Auth = require('./middleware/auth');
 const models = require('./models');
 
+const parseCookies = require('./middleware/cookieParser');
+console.log(parseCookies);
+
 const app = express();
 
 app.set('views', `${__dirname}/views`);
@@ -13,7 +16,7 @@ app.use(partials());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
-
+app.use(parseCookies);
 
 
 app.get('/',
