@@ -16,67 +16,115 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 
 
-app.get('/', 
-(req, res) => {
-  res.render('index');
-});
+app.get('/',
+  (req, res) => {
+    res.render('index');
+  });
 
-app.get('/create', 
-(req, res) => {
-  res.render('index');
-});
+app.get('/create',
+  (req, res) => {
+    res.render('index');
+  });
 
-app.get('/links', 
-(req, res, next) => {
-  models.Links.getAll()
-    .then(links => {
-      res.status(200).send(links);
-    })
-    .error(error => {
-      res.status(500).send(error);
-    });
-});
-
-app.post('/links', 
-(req, res, next) => {
-  var url = req.body.url;
-  if (!models.Links.isValidUrl(url)) {
-    // send back a 404 if link is not valid
-    return res.sendStatus(404);
-  }
-
-  return models.Links.get({ url })
-    .then(link => {
-      if (link) {
-        throw link;
-      }
-      return models.Links.getUrlTitle(url);
-    })
-    .then(title => {
-      return models.Links.create({
-        url: url,
-        title: title,
-        baseUrl: req.headers.origin
+app.get('/links',
+  (req, res, next) => {
+    models.Links.getAll()
+      .then(links => {
+        res.status(200).send(links);
+      })
+      .error(error => {
+        res.status(500).send(error);
       });
-    })
-    .then(results => {
-      return models.Links.get({ id: results.insertId });
-    })
-    .then(link => {
-      throw link;
-    })
-    .error(error => {
-      res.status(500).send(error);
-    })
-    .catch(link => {
-      res.status(200).send(link);
-    });
-});
+  });
+
+app.post('/links',
+  (req, res, next) => {
+    var url = req.body.url;
+    if (!models.Links.isValidUrl(url)) {
+      // send back a 404 if link is not valid
+      return res.sendStatus(404);
+    }
+
+    return models.Links.get({ url })
+      .then(link => {
+        if (link) {
+          throw link;
+        }
+        return models.Links.getUrlTitle(url);
+      })
+      .then(title => {
+        return models.Links.create({
+          url: url,
+          title: title,
+          baseUrl: req.headers.origin
+        });
+      })
+      .then(results => {
+        return models.Links.get({ id: results.insertId });
+      })
+      .then(link => {
+        throw link;
+      })
+      .error(error => {
+        res.status(500).send(error);
+      })
+      .catch(link => {
+        res.status(200).send(link);
+      });
+  });
 
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+app.post('/signup',
+  (req, res) => {
+    var checkUsers = models.Users.get({ username: req.body.username });
 
+    checkUsers
+      .then(data => {
+        if (data !== undefined) {
+          res.location('/signup');
+          res.status(301).send('Username is already taken');
+        } else {
+          var createUser = models.Users.create({ username: req.body.username, password: req.body.password });
+          createUser
+            .then(data => {
+              res.location('/');
+              res.status(200).send('signup success');
+            })
+            .error(error => {
+              res.status(500).send('signup error');
+            });
+        }
+      });
+  });
+
+app.post('/login',
+  (req, res) => {
+    var checkUsers = models.Users.get({ username: req.body.username });
+
+    checkUsers
+      .then(data => {
+        // If username exists
+        if (data !== undefined) {
+          // Check whether password is correct or not
+          if (!models.Users.compare(req.body.password, data.password, data.salt)) {
+            res.location('/login');
+            res.status(400).send('Password is wrong');
+          } else {
+            res.location('/');
+            res.status(200).send('Login successful');
+          }
+        } else {
+          res.location('/login');
+          res.status(400).send('Username does not exist');
+        }
+      })
+      .error(error => {
+        res.location('/login');
+        res.status(500).send('Username and/or password is incorrect');
+      });
+  });
 
 
 /************************************************************/
