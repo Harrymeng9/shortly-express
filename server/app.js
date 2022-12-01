@@ -6,7 +6,6 @@ const Auth = require('./middleware/auth');
 const models = require('./models');
 
 const parseCookies = require('./middleware/cookieParser');
-console.log(parseCookies);
 
 const app = express();
 
