@@ -7,6 +7,10 @@ const parseCookies = (req, res, next) => {
       var splitEqual = i.split('=');
       result[splitEqual[0]] = splitEqual[1];
     }
+  } else {
+    // req.cookies = result;
+    // result['hello'] = 'world';
+
   }
   req.cookies = result;
   next();
