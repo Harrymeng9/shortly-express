@@ -6,6 +6,7 @@ const Auth = require('./middleware/auth');
 const models = require('./models');
 
 const parseCookies = require('./middleware/cookieParser');
+// const createSession = require('./middleware/auth');
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(parseCookies);
-
+app.use(Auth.createSession);
 
 app.get('/',
   (req, res) => {

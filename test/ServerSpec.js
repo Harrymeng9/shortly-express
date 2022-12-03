@@ -429,8 +429,6 @@ describe('', function() {
 
           createSession(secondRequestWithoutCookies, responseTwo, function() {
             var sessionHashTwo = secondRequestWithoutCookies.session.hash;
-            console.log('sessionHashOne', sessionHashOne);
-            console.log('sessionHashTwo', sessionHashTwo);
             expect(sessionHashOne).to.not.equal(sessionHashTwo);
 
             done();
@@ -483,7 +481,7 @@ describe('', function() {
     });
   });
 
-  xdescribe('Sessions and cookies', function() {
+  describe('Sessions and cookies', function() {
     var requestWithSession;
     var cookieJar;
 
